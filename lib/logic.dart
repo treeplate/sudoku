@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
 class SudokuGrid {
   SudokuGrid(this.values) {
     assert(sqrt(values.length) % 1 == 0);
@@ -59,7 +61,11 @@ class SudokuGrid {
   bool verify() {
     for (int y = 0; y < dim; y++) {
       for (int x = 0; x < dim; x++) {
-        if (allowed(x, y, verifySet).single != position(x, y)) return false;
+        try {
+          if (allowed(x, y, verifySet).single != position(x, y)) return false;
+        } on StateError {
+          return false;
+        }
       }
     }
     return true;
@@ -95,4 +101,45 @@ class SudokuGrid {
     }
     return SudokuGrid(list.toList());
   }
+}
+
+void tests() {
+  var grid = SudokuGrid([
+      0,   1,  2,  3, 
+      10, 11, 12, 13,
+      20, 21, 22, 23,
+      30, 31, 32, 33
+  ]);
+  assert(listEquals(grid.row(1), [10, 11, 12, 13]));
+  assert(listEquals(grid.column(1).toList(), [1, 11, 21, 31]));
+  assert(grid.position(1, 1) == 11);
+  assert(listEquals(grid.block(1, 0), [2, 3, 12, 13]));
+
+  var badGrid1 = SudokuGrid.fromStrings([
+    ".123",
+    ".123",
+    ".123",
+    ".123"
+  ]);
+  assert(!badGrid1.verify());
+
+  
+  var badGrid2 = SudokuGrid.fromStrings([
+    "1234",
+    "2341",
+    "3412",
+    "4123"
+  ]);
+  assert(!badGrid2.verify());
+  
+  var sparseGrid = SudokuGrid.fromStrings([
+    "1.3.",
+    ".2..",
+    "4...",
+    "...4"
+  ]);
+  assert(setEquals(sparseGrid.allowed(0, 0), {1}));
+  assert(setEquals(sparseGrid.allowed(1, 0), {4}));
+  assert(sparseGrid.allowed(3, 1).single == 1);
+  assert(setEquals(sparseGrid.allowed(2, 3), {1, 2}));
 }
