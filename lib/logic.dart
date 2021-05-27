@@ -2,8 +2,8 @@ import 'dart:math';
 
 class SudokuGrid {
   SudokuGrid(this.values) {
-    assert(sqrt(values.length) == 0);
-    assert(sqrt(sqrt(values.length)) == 0.0);
+    assert(sqrt(values.length) % 1 == 0);
+    assert(sqrt(sqrt(values.length)) % 1 == 0);
   }
   final List<int?> values;
   int get dim => sqrt(values.length).toInt();
