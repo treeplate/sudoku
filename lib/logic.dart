@@ -79,8 +79,12 @@ class SudokuGrid {
     return SudokuGrid(temp.toList());
   }
   
-  SudokuGrid removeCenter(int x, int y, int center) {
-    return fill(x, y, position(x, y).toList()..remove(center));
+  Deduction removeCenter(int x, int y, int center) {
+    String reasoning = "";
+    if(row(y).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "row contains $center";
+    else if(column(x).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "column contains $center";
+    else if(block(x ~/ blockSize, y ~/ blockSize).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "box contains $center";
+    return Deduction(fill(x, y, position(x, y).toList()..remove(center)), reasoning);
   }
   SudokuGrid addCenter(int x, int y, int center) {
     return fill(x, y, position(x, y).toList()..add(center));
@@ -140,4 +144,10 @@ void tests() {
   assert(setEquals(sparseGrid.allowed(1, 0), {4}));
   assert(sparseGrid.allowed(3, 1).single == 1);
   assert(setEquals(sparseGrid.allowed(2, 3), {1, 2}));
+}
+
+class Deduction {
+  Deduction(this.result, this.reasoning);
+  final SudokuGrid result;
+  final String reasoning;
 }
