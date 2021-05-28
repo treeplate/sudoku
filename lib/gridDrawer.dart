@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sudoku/sevenSegmentDisplay.dart';
 
 class GridDrawer extends StatelessWidget {
-  const GridDrawer(this.grid, this.width);
-  final List<int?> grid;
+  const GridDrawer(this.grid, this.width, {Key? key}): super(key: key);
+  final List<List<int>> grid;
   final int width;
   int get height => grid.length ~/ width;
   @override
@@ -23,7 +23,7 @@ class GridPainter extends CustomPainter {
   GridPainter(this.width, this.height, this.grid);
   final int width;
   final int height;
-  final List<int?> grid;
+  final List<List<int>> grid;
 
   @override
   bool shouldRepaint(GridPainter old) {
@@ -37,7 +37,6 @@ class GridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final List<List<int>> grid = this.grid.map((int? value) => <int>[ if (value != null) value ]).toList();
     final double cellDim = size.shortestSide/width;
     final double padding = cellDim / 10.0;
     for (int y = 0; y < height; y += 1) {

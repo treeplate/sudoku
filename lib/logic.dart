@@ -100,7 +100,6 @@ void tests() {
       [20], [21], [22], [23],
       [30], [31], [32], [33],
   ]);
-  print("${grid.row(1)}");
   assert(listEquals(grid.row(1), [[10], [11], [12], [13]]));
   assert(listEquals(grid.column(1).toList(), [[1], [11], [21], [31]]));
   assert(listEquals(grid.position(1, 1), [11]));
@@ -129,7 +128,6 @@ void tests() {
     "4...",
     "...4"
   ]);
-  print(sparseGrid.allowed(0, 0));
   assert(setEquals(sparseGrid.allowed(0, 0), {1}));
   assert(setEquals(sparseGrid.allowed(1, 0), {4}));
   assert(sparseGrid.allowed(3, 1).single == 1);

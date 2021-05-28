@@ -21,7 +21,7 @@ class SudokuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: GridDrawer([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], grid.dim),
+      child: GridDrawer(grid.values, grid.dim),
     );
   }
 }
