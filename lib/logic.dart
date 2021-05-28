@@ -77,6 +77,10 @@ class SudokuGrid {
     temp[x + y * dim] = cell;
     return SudokuGrid(temp.toList());
   }
+  
+  SudokuGrid removeCenter(int x, int y, int center) {
+    return fill(x, y, position(x, y).toList()..remove(center));
+  }
 
   static SudokuGrid fromStrings(List<String> rows) {
     List<List<int>> list = [];
