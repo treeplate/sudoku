@@ -89,6 +89,10 @@ class SudokuGrid {
   SudokuGrid addCenter(int x, int y, int center) {
     return fill(x, y, position(x, y).toList()..add(center));
   }
+  Deduction toggleCenter(int location, int center) {
+    if(values[location].contains(center)) return removeCenter(location % dim, location ~/ dim, center);
+    return Deduction(addCenter(location % dim, location ~/ dim, center), "");
+  }
 
   static SudokuGrid fromStrings(List<String> rows) {
     List<List<int>> list = [];
