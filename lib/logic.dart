@@ -71,17 +71,6 @@ class SudokuGrid {
     return true;
   }
 
-  void printToConsole() {
-    for (int y = 0; y < dim; y++) {
-      print(row(y).map((int? it) {
-        if (it == null)
-          return ".";
-        else
-          return it.toString();
-      }).join(""));
-    }
-  }
-
   SudokuGrid fill(int x, int y, int? cell) {
     List<int?> temp = values.toList();
     temp[x + y * dim] = cell;

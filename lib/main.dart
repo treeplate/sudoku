@@ -16,7 +16,7 @@ void main() {
 
 class SudokuDrawer extends StatelessWidget {
   final SudokuGrid grid;
-  SudokuDrawer(this.grid);
+  const SudokuDrawer(this.grid);
 
   @override
   Widget build(BuildContext context) {
