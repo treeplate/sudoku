@@ -4,10 +4,12 @@ import 'package:sudoku/logic.dart';
 
 void main() {
   tests();
-  runApp(MaterialApp(home: MyApp()));
+  runApp(const MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({ Key? key }): super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -21,18 +23,27 @@ class _MyAppState extends State<MyApp> {
   ]);
   @override
   Widget build(BuildContext context) {
-    return SudokuDrawer(grid);
+    return SudokuDrawer(grid: grid);
   }
 }
 
 class SudokuDrawer extends StatelessWidget {
+  const SudokuDrawer({ Key? key, required this.grid }) : super(key: key);
+
   final SudokuGrid grid;
-  const SudokuDrawer(this.grid);
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: GridDrawer(grid.values, grid.dim),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: AspectRatio(
+            aspectRatio: 1.0,
+            child: GridDrawer(values: grid.values),
+          ),
+        ),
+      ),
     );
   }
 }

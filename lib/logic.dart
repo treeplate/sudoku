@@ -12,11 +12,12 @@ bool listEquals(List a, List b) {
 }
 
 class SudokuGrid {
-  SudokuGrid(this.values) {
-    assert(sqrt(values.length) % 1 == 0);
+  SudokuGrid(this.values) :
+    assert(sqrt(values.length) % 1 == 0),
     assert(sqrt(sqrt(values.length)) % 1 == 0);
-  }
+
   final List<List<int>> values;
+
   int get dim => sqrt(values.length).toInt();
   int get blockSize => sqrt(dim).toInt();
 
@@ -95,7 +96,7 @@ class SudokuGrid {
 
 void tests() {
   var grid = SudokuGrid([
-      [0],   [1],  [2],  [3], 
+      [0],   [1],  [2],  [3],
       [10], [11], [12], [13],
       [20], [21], [22], [23],
       [30], [31], [32], [33],
@@ -113,7 +114,7 @@ void tests() {
   ]);
   assert(!badGrid1.verify());
 
-  
+
   var badGrid2 = SudokuGrid.fromStrings([
     "1234",
     "2341",
@@ -121,7 +122,7 @@ void tests() {
     "4123"
   ]);
   assert(!badGrid2.verify());
-  
+
   var sparseGrid = SudokuGrid.fromStrings([
     "1.3.",
     ".2..",
