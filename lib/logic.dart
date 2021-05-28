@@ -55,7 +55,7 @@ class SudokuGrid {
   }
 
   Set<int> verifySet(int x, int y) {
-    SudokuGrid grid = fill(x, y, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    SudokuGrid grid = fill(x, y, List.generate(dim, (index) => index + 1));
     return grid.allowed(x, y);
   }
 
@@ -83,7 +83,7 @@ class SudokuGrid {
     for (String row in rows) {
       for (String char in row.split('')) {
         if (char == ".") {
-          list.add([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+          list.add(List.generate(rows.length, (index) => index + 1));
         } else {
           list.add([int.parse(char)]);
         }
