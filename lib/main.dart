@@ -14,6 +14,11 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
+class ToggleDigitIntent extends Intent {
+  const ToggleDigitIntent(this.digit);
+  final int digit;
+}
+
 class _MyAppState extends State<MyApp> {
   SudokuGrid grid = SudokuGrid.fromStrings([
     "1.3.",
@@ -21,30 +26,60 @@ class _MyAppState extends State<MyApp> {
     "..43",
     "..2.",
   ]);
+  
   int selected = 0;
+
+  void _toggle(int digit) {
+    setState(() {
+      // grid = grid.toggleCenter(selected, digit).result;
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      return GestureDetector(
-        child: SudokuDrawer(grid: grid, selected: selected),
-        onTapDown: (TapDownDetails details) {
-          setState(() {
-            double padding = (constraints.biggest.longestSide -
-                constraints.biggest.shortestSide) / 2;
-            Offset offsetPadding =
-                constraints.biggest.longestSide == constraints.maxWidth
-                    ? Offset(padding, 0)
-                    : Offset(0, padding);
-            var pixelsPerGridCell = (constraints.biggest.shortestSide / grid.dim);
-                        Offset gridOffset = (details.localPosition - offsetPadding) /
-                            pixelsPerGridCell;
-            selected = (gridOffset.dy.truncate() * grid.dim +
-                gridOffset.dx.truncate());
-          });
+    return Shortcuts(
+      shortcuts: const <ShortcutActivator, Intent>{
+        CharacterActivator('1'): ToggleDigitIntent(1),
+        CharacterActivator('2'): ToggleDigitIntent(2),
+        CharacterActivator('3'): ToggleDigitIntent(3),
+        CharacterActivator('4'): ToggleDigitIntent(4),
+        CharacterActivator('5'): ToggleDigitIntent(5),
+        CharacterActivator('6'): ToggleDigitIntent(6),
+        CharacterActivator('7'): ToggleDigitIntent(7),
+        CharacterActivator('8'): ToggleDigitIntent(8),
+        CharacterActivator('9'): ToggleDigitIntent(9),
+      },
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          ToggleDigitIntent: CallbackAction<ToggleDigitIntent>(onInvoke: (ToggleDigitIntent intent) => _toggle(intent.digit)),
         },
-      );
-    });
+        child: Focus(
+          autofocus: true,
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return GestureDetector(
+                child: SudokuDrawer(grid: grid, selected: selected),
+                onTapDown: (TapDownDetails details) {
+                  setState(() {
+                    double padding = (constraints.biggest.longestSide -
+                        constraints.biggest.shortestSide) / 2;
+                    Offset offsetPadding =
+                        constraints.biggest.longestSide == constraints.maxWidth
+                            ? Offset(padding, 0)
+                            : Offset(0, padding);
+                    var pixelsPerGridCell = (constraints.biggest.shortestSide / grid.dim);
+                                Offset gridOffset = (details.localPosition - offsetPadding) /
+                                    pixelsPerGridCell;
+                    selected = (gridOffset.dy.truncate() * grid.dim +
+                        gridOffset.dx.truncate());
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
 
