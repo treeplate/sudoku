@@ -3,18 +3,18 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' show setEquals;
 
 bool listEquals(List a, List b) {
-  if(a.length != b.length) return false;
-  for(int i = 0; i < a.length; i++) {
-    if(a[i].runtimeType != b[i].runtimeType) return false;
-    if(a[i] is List && !listEquals(a[i], b[i])) return false;
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i].runtimeType != b[i].runtimeType) return false;
+    if (a[i] is List && !listEquals(a[i], b[i])) return false;
   }
   return true;
 }
 
 class SudokuGrid {
-  SudokuGrid(this.values) :
-    assert(sqrt(values.length) % 1 == 0),
-    assert(sqrt(sqrt(values.length)) % 1 == 0);
+  SudokuGrid(this.values)
+      : assert(sqrt(values.length) % 1 == 0),
+        assert(sqrt(sqrt(values.length)) % 1 == 0);
 
   final List<List<int>> values;
 
@@ -49,9 +49,13 @@ class SudokuGrid {
 
   Set<int> allowed(int x, int y) {
     Set<int> result = List.generate(dim, (index) => index + 1).toSet();
-    result.removeAll((row(y)..remove(position(x, y))).map((List<int> centers) => centers.length == 1 ? centers.single : []));
-    result.removeAll((column(x).toList()..remove(position(x, y))).map((List<int> centers) => centers.length == 1 ? centers.single : []));
-    result.removeAll((block(x ~/ blockSize, y ~/ blockSize)..remove(position(x, y))).map((List<int> centers) => centers.length == 1 ? centers.single : []));
+    result.removeAll((row(y)..remove(position(x, y)))
+        .map((List<int> centers) => centers.length == 1 ? centers.single : []));
+    result.removeAll((column(x).toList()..remove(position(x, y)))
+        .map((List<int> centers) => centers.length == 1 ? centers.single : []));
+    result.removeAll((block(x ~/ blockSize, y ~/ blockSize)
+          ..remove(position(x, y)))
+        .map((List<int> centers) => centers.length == 1 ? centers.single : []));
     return result;
   }
 
@@ -78,20 +82,47 @@ class SudokuGrid {
     temp[x + y * dim] = cell;
     return SudokuGrid(temp.toList());
   }
-  
+
   Deduction removeCenter(int x, int y, int center) {
     String reasoning = "";
-    if(row(y).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "row contains $center";
-    else if(column(x).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "column contains $center";
-    else if(block(x ~/ blockSize, y ~/ blockSize).where((element) => element.length == 1).map((e) => e.single).contains(center)) reasoning = "box contains $center";
-    return Deduction(fill(x, y, position(x, y).toList()..remove(center)), reasoning);
+    if (row(y)
+        .where((element) => element.length == 1)
+        .map((e) => e.single)
+        .contains(center))
+      reasoning = "row contains $center";
+    else if (column(x)
+        .where((element) => element.length == 1)
+        .map((e) => e.single)
+        .contains(center))
+      reasoning = "column contains $center";
+    else if (block(x ~/ blockSize, y ~/ blockSize)
+        .where((element) => element.length == 1)
+        .map((e) => e.single)
+        .contains(center)) reasoning = "box contains $center";
+    return Deduction(
+        fill(x, y, position(x, y).toList()..remove(center)), reasoning);
   }
+
   SudokuGrid addCenter(int x, int y, int center) {
     return fill(x, y, position(x, y).toList()..add(center));
   }
+
   Deduction toggleCenter(int location, int center) {
-    if(values[location].contains(center)) return removeCenter(location % dim, location ~/ dim, center);
+    if (values[location].contains(center))
+      return removeCenter(location % dim, location ~/ dim, center);
     return Deduction(addCenter(location % dim, location ~/ dim, center), "");
+  }
+
+  Deduction nextStep() {
+    for (int y = 0; y < dim; y++) {
+      for (int x = 0; x < dim; x++) {
+        for(int center in position(x, y)) {
+          if(!allowed(x, y).contains(center))
+            return removeCenter(x, y, center);
+        }
+      }
+    }
+    return Deduction(this, "Too hard");
   }
 
   static SudokuGrid fromStrings(List<String> rows) {
@@ -111,39 +142,50 @@ class SudokuGrid {
 
 void tests() {
   var grid = SudokuGrid([
-      [0],   [1],  [2],  [3],
-      [10], [11], [12], [13],
-      [20], [21], [22], [23],
-      [30], [31], [32], [33],
+    [0],
+    [1],
+    [2],
+    [3],
+    [10],
+    [11],
+    [12],
+    [13],
+    [20],
+    [21],
+    [22],
+    [23],
+    [30],
+    [31],
+    [32],
+    [33],
   ]);
-  assert(listEquals(grid.row(1), [[10], [11], [12], [13]]));
-  assert(listEquals(grid.column(1).toList(), [[1], [11], [21], [31]]));
+  assert(listEquals(grid.row(1), [
+    [10],
+    [11],
+    [12],
+    [13]
+  ]));
+  assert(listEquals(grid.column(1).toList(), [
+    [1],
+    [11],
+    [21],
+    [31]
+  ]));
   assert(listEquals(grid.position(1, 1), [11]));
-  assert(listEquals(grid.block(1, 0), [[2], [3], [12], [13]]));
+  assert(listEquals(grid.block(1, 0), [
+    [2],
+    [3],
+    [12],
+    [13]
+  ]));
 
-  var badGrid1 = SudokuGrid.fromStrings([
-    ".123",
-    ".123",
-    ".123",
-    ".123"
-  ]);
+  var badGrid1 = SudokuGrid.fromStrings([".123", ".123", ".123", ".123"]);
   assert(!badGrid1.verify());
 
-
-  var badGrid2 = SudokuGrid.fromStrings([
-    "1234",
-    "2341",
-    "3412",
-    "4123"
-  ]);
+  var badGrid2 = SudokuGrid.fromStrings(["1234", "2341", "3412", "4123"]);
   assert(!badGrid2.verify());
 
-  var sparseGrid = SudokuGrid.fromStrings([
-    "1.3.",
-    ".2..",
-    "4...",
-    "...4"
-  ]);
+  var sparseGrid = SudokuGrid.fromStrings(["1.3.", ".2..", "4...", "...4"]);
   assert(setEquals(sparseGrid.allowed(0, 0), {1}));
   assert(setEquals(sparseGrid.allowed(1, 0), {4}));
   assert(sparseGrid.allowed(3, 1).single == 1);

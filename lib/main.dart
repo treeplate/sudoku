@@ -21,20 +21,23 @@ class ToggleDigitIntent extends Intent {
 
 class _MyAppState extends State<MyApp> {
   SudokuGrid grid = SudokuGrid.fromStrings([
-    "1.3.",
+    "1...",
     ".2..",
-    "..43",
+    ".14.",
     "..2.",
   ]);
-  
+
   int selected = 0;
+  String lastStepReasoning = "";
 
   void _toggle(int digit) {
     setState(() {
-      // grid = grid.toggleCenter(selected, digit).result;
+      var deduction = grid.toggleCenter(selected, digit);
+      grid = deduction.result;
+      lastStepReasoning = deduction.reasoning;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
@@ -51,31 +54,55 @@ class _MyAppState extends State<MyApp> {
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
-          ToggleDigitIntent: CallbackAction<ToggleDigitIntent>(onInvoke: (ToggleDigitIntent intent) => _toggle(intent.digit)),
+          ToggleDigitIntent: CallbackAction<ToggleDigitIntent>(
+              onInvoke: (ToggleDigitIntent intent) => _toggle(intent.digit)),
         },
         child: Focus(
           autofocus: true,
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return GestureDetector(
-                child: SudokuDrawer(grid: grid, selected: selected),
-                onTapDown: (TapDownDetails details) {
+          child: Column(
+            children: [
+              Material(
+                  child: Text(
+                      "Solved (correctly): ${grid.verify()}\n\nLast step: $lastStepReasoning")),
+              TextButton(
+                child: const Text("Do next step"),
+                onPressed: () {
                   setState(() {
-                    double padding = (constraints.biggest.longestSide -
-                        constraints.biggest.shortestSide) / 2;
-                    Offset offsetPadding =
-                        constraints.biggest.longestSide == constraints.maxWidth
-                            ? Offset(padding, 0)
-                            : Offset(0, padding);
-                    var pixelsPerGridCell = (constraints.biggest.shortestSide / grid.dim);
-                                Offset gridOffset = (details.localPosition - offsetPadding) /
-                                    pixelsPerGridCell;
-                    selected = (gridOffset.dy.truncate() * grid.dim +
-                        gridOffset.dx.truncate());
+                    Deduction deduction = grid.nextStep();
+                    grid = deduction.result;
+                    lastStepReasoning = deduction.reasoning;
                   });
                 },
-              );
-            },
+              ),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    return GestureDetector(
+                      child: SudokuDrawer(grid: grid, selected: selected),
+                      onTapDown: (TapDownDetails details) {
+                        setState(() {
+                          double padding = (constraints.biggest.longestSide -
+                                  constraints.biggest.shortestSide) /
+                              2;
+                          Offset offsetPadding =
+                              constraints.biggest.longestSide ==
+                                      constraints.maxWidth
+                                  ? Offset(padding, 0)
+                                  : Offset(0, padding);
+                          var pixelsPerGridCell =
+                              (constraints.biggest.shortestSide / grid.dim);
+                          Offset gridOffset =
+                              (details.localPosition - offsetPadding) /
+                                  pixelsPerGridCell;
+                          selected = (gridOffset.dy.truncate() * grid.dim +
+                              gridOffset.dx.truncate());
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
